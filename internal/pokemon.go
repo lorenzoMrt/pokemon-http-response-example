@@ -11,17 +11,18 @@ type Pokemon struct {
 }
 
 type PokemonRepository interface {
-	GetPokemon() (*Pokemon, error)
+	GetPokemon() (Pokemon, error)
 }
 
 func NewPokemon(count int, next string, previous string, results []struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
-}) *Pokemon {
-	return &Pokemon{
+}) (p Pokemon) {
+	p = Pokemon{
 		Count:    count,
 		Next:     next,
 		Previous: previous,
 		Results:  results,
 	}
+	return
 }

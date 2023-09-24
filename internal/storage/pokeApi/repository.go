@@ -1,7 +1,10 @@
 package pokeapi
 
 import (
-	pokemoncli 
+	"encoding/json"
+	"io"
+	"net/http"
+	pokemoncli "pokemon-cli/internal"
 )
 
 const (
@@ -13,17 +16,27 @@ type pokemonRepo struct {
 	url string
 }
 
-func NewPokemonRepository(url string) *pokemonRepo {
+func NewPokemonRepository(url string) pokemoncli.PokemonRepository {
 	return &pokemonRepo{
 		url: url,
 	}
 }
 
-func (p *pokemonRepo) GetPokemon() (*Pokemon, error) {
-	pokemon := &Pokemon{}
-	err := p.Get(pokemonUrl+pokemonEndpoint, pokemon)
+func (p *pokemonRepo) GetPokemon() (pokemon pokemoncli.Pokemon, err error) {
+	response, err := http.Get(pokemonUrl + pokemonEndpoint)
 	if err != nil {
 		return nil, err
 	}
-	return pokemon, nil
+	contents, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(contents, &pokemon)
+	if err != nil {
+		return nil, err
+	}
+	if response == nil {
+		return pokemoncli.Pokemon{}, nil
+	}
+	return
 }
